@@ -1,7 +1,7 @@
 #include <iostream>
 using namespace std;
 
-// definicao de tipo
+// definição de tipo
 struct NO {
 	int valor;
 	NO* prox;
@@ -14,12 +14,11 @@ void menu();
 void inicializar();
 void exibirQuantidadeElementos();
 void exibirElementos();
-void inserirElemento();
+void inserirElementoOrdenado();
 void excluirElemento();
 void buscarElemento();
 NO* posicaoElemento(int numero);
 //--------------------------
-
 
 int main()
 {
@@ -31,7 +30,7 @@ void menu()
 	int op = 0;
 	while (op != 7) {
 		system("cls"); // somente no windows
-		cout << "Menu Lista Ligada";
+		cout << "Menu Lista Ligada Ordenada";
 		cout << endl << endl;
 		cout << "1 - Inicializar Lista \n";
 		cout << "2 - Exibir quantidade de elementos \n";
@@ -54,7 +53,7 @@ void menu()
 			break;
 		case 4: buscarElemento();
 			break;
-		case 5: inserirElemento();
+		case 5: inserirElementoOrdenado();
 			break;
 		case 6: excluirElemento();
 			break;
@@ -70,8 +69,6 @@ void menu()
 
 void inicializar()
 {
-	// se a lista já possuir elementos
-// libera a memoria ocupada
 	NO* aux = primeiro;
 	while (aux != NULL) {
 		NO* paraExcluir = aux;
@@ -81,7 +78,6 @@ void inicializar()
 
 	primeiro = NULL;
 	cout << "Lista inicializada \n";
-
 }
 
 void exibirQuantidadeElementos() {
@@ -93,7 +89,6 @@ void exibirQuantidadeElementos() {
 		aux = aux->prox;
 	}
 	cout << "Quantidade de elementos: " << nElementos << endl;
-
 }
 
 void exibirElementos()
@@ -112,42 +107,106 @@ void exibirElementos()
 	}
 }
 
-void inserirElemento()
+// Inserir elemento em ordem e evitar duplicatas
+void inserirElementoOrdenado()
 {
-	// aloca memoria dinamicamente para o novo elemento
+	int valor;
+	cout << "Digite o elemento: ";
+	cin >> valor;
+
 	NO* novo = (NO*)malloc(sizeof(NO));
 	if (novo == NULL)
 	{
 		return;
 	}
-
-	cout << "Digite o elemento: ";
-	cin >> novo->valor;
+	novo->valor = valor;
 	novo->prox = NULL;
 
-	if (primeiro == NULL)
-	{
+	// Se a lista estiver vazia ou o valor for menor que o primeiro valor
+	if (primeiro == NULL || primeiro->valor > valor) {
+		novo->prox = primeiro;
 		primeiro = novo;
 	}
-	else
-	{
-		// procura o final da lista
-		NO* aux = primeiro;
-		while (aux->prox != NULL) {
-			aux = aux->prox;
+	else {
+		NO* atual = primeiro;
+		NO* anterior = NULL;
+
+		// Percorrer a lista para encontrar a posição correta
+		while (atual != NULL && atual->valor < valor) {
+			anterior = atual;
+			atual = atual->prox;
 		}
-		aux->prox = novo;
+
+		// Se o elemento já existir na lista, não insere duplicado
+		if (atual != NULL && atual->valor == valor) {
+			cout << "Elemento já existe na lista. Não será inserido.\n";
+			free(novo); // Libera a memória alocada para o novo nó
+			return;
+		}
+
+		// Insere o novo elemento na posição correta
+		anterior->prox = novo;
+		novo->prox = atual;
 	}
+	cout << "Elemento inserido.\n";
 }
 
+// Função otimizada para excluir elemento em lista ordenada
 void excluirElemento()
 {
+	int valor;
+	cout << "Digite o valor a ser excluído: ";
+	cin >> valor;
 
+	if (primeiro == NULL) {
+		cout << "Lista vazia. Nenhum elemento para excluir.\n";
+		return;
+	}
+
+	NO* atual = primeiro;
+	NO* anterior = NULL;
+
+	// Encontrar o elemento a ser excluído
+	while (atual != NULL && atual->valor != valor) {
+		anterior = atual;
+		atual = atual->prox;
+	}
+
+	// Elemento não encontrado
+	if (atual == NULL) {
+		cout << "Elemento não encontrado.\n";
+		return;
+	}
+
+	// Remover o elemento
+	if (anterior == NULL) {
+		primeiro = atual->prox; // Remover o primeiro elemento
+	}
+	else {
+		anterior->prox = atual->prox; // Remover qualquer outro elemento
+	}
+
+	free(atual);
+	cout << "Elemento excluído.\n";
 }
 
+// Função otimizada para buscar elemento em lista ordenada
 void buscarElemento()
 {
+	int valor;
+	cout << "Digite o valor a ser buscado: ";
+	cin >> valor;
 
+	NO* atual = primeiro;
+
+	// Percorrer a lista até encontrar o elemento ou até ultrapassar o valor
+	while (atual != NULL && atual->valor <= valor) {
+		if (atual->valor == valor) {
+			cout << "Elemento encontrado: " << valor << endl;
+			return;
+		}
+		atual = atual->prox;
+	}
+
+	cout << "Elemento não encontrado.\n";
 }
-
-
